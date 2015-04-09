@@ -1,5 +1,32 @@
-var UrlHashRouter = (function(root){
+var UrlHashRouter = (function(){
 	function UrlHashRouter() {
+		this.routes = [];
+	}
+
+	UrlHashRouter.prototype.register = function( regex, callback ) {
+		this.routes[ regex ] = callback;	
+	}
+
+	UrlHashRouter.prototype.execute = function( location ) {
+		var routes = this.routes;
+
+		for( var pattern in routes ) {
+			var callback = routes[pattern];
+			console.log(pattern);
+
+			var re = new RegExp(pattern) ;
+
+			var isTrue = re.test( location );
+
+			if( !isTrue )
+				continue;
+
+			var matches = location.match( re );
+
+			var args = getFunctionArguments( matches );
+
+			callback.apply(this, args);
+		}
 	}
 
 	function getFunctionArguments( matches ) {
@@ -25,23 +52,5 @@ var UrlHashRouter = (function(root){
 		return args;
 	}
 
-	UrlHashRouter.prototype.route = function( regex, callback ) {
-		var location = root.location.hash;
-		location = location.substring(1);
-
-		var re = new RegExp(regex) ;
-
-		var isTrue = re.test( location );
-
-		if( !isTrue )
-			return;
-
-		var matches = location.match( re );
-
-		var args = getFunctionArguments( matches );
-
-		callback.apply(this, args);
-	}
-
-	return new UrlHashRouter();
-})(this);
+	return UrlHashRouter;
+})();
