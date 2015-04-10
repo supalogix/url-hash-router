@@ -1,10 +1,15 @@
 var UrlHashRouter = (function(){
 	function UrlHashRouter() {
 		this.routes = [];
+		this.unknownRoute = null;
 	}
 
 	UrlHashRouter.prototype.register = function( regex, callback ) {
 		this.routes[ regex ] = callback;	
+	}
+
+	UrlHashRouter.prototype.registerUnknown( callback ) {
+		this.unknownRoute = callback;
 	}
 
 	UrlHashRouter.prototype.execute = function( location ) {
@@ -26,7 +31,11 @@ var UrlHashRouter = (function(){
 			var args = getFunctionArguments( matches );
 
 			callback.apply(this, args);
+			return;
 		}
+
+		if( this.unknownRoute !== null ) 
+			this.unknownRoute();
 	}
 
 	function getFunctionArguments( matches ) {
